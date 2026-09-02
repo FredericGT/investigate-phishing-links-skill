@@ -30,11 +30,15 @@ This skill is intended only for authorized defensive analysis. It instructs Code
 ```text
 investigate-phishing-links/
 ├── SKILL.md
+├── VERSION
 ├── agents/openai.yaml
 ├── references/
 │   ├── reporting-and-iocs.md
 │   └── technical-workflow.md
-└── scripts/build_evidence_package.py
+├── scripts/
+│   ├── build_evidence_package.py
+│   └── ci_check.py
+└── tests/test_build_evidence_package.py
 ```
 
 The repository README is intentionally outside the Skill directory so the installed Skill contains only files required by Codex.
@@ -72,6 +76,18 @@ Generate a technical report, IOC files, and a Jira incident record.
 `scripts/build_evidence_package.py` packages a reviewed case directory without executing its contents. It rejects symlinks, reads only regular files as bytes, adds a SHA-256 manifest, and creates a deterministic ZIP.
 
 Review and redact the case directory before packaging. Keep raw URLs, tokens, personal information, internal telemetry, and untrusted HTML/JavaScript in access-restricted case storage.
+
+## Local validation / 本地验证
+
+Run the offline quality gates from the repository root:
+
+```bash
+python3 investigate-phishing-links/scripts/ci_check.py
+```
+
+The checks validate Skill metadata, compile the Skill's own Python files, and
+run synthetic evidence-packaging tests. They do not contact a URL or execute
+case content.
 
 ## Notes / 说明
 
