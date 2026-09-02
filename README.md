@@ -94,3 +94,67 @@ case content.
 - The Skill contains no real incident IOC, victim data, tracking token, credential, or malicious sample.
 - A high-confidence phishing-gateway classification does not by itself prove credential theft, session hijacking, malware delivery, or endpoint compromise.
 - Product-specific actions must be verified against deployed licenses, telemetry, and permissions before they are reported as feasible or complete.
+
+---
+
+## 中文详细说明
+
+`investigate-phishing-links` 是一个面向授权防御调查的 Codex Skill，用于在
+不提交凭证、不执行下载内容、不绕过访问控制的前提下分析疑似钓鱼链接、
+登录页面、会议页面及已有证据包。
+
+### 功能范围
+
+- 离线解析 URL、域名、路径、查询参数、重定向参数和 tracking token。
+- 调查 DNS、RDAP/WHOIS、注册时间、托管、ASN、TLS 证书和公开基础设施记录。
+- 在明确授权且隔离环境可验证时，采集最小化的 HTTP 状态、响应头和重定向链。
+- 将 HTML 和 JavaScript 作为文本分析，检查表单、外联、下载诱导、指纹和反自动化逻辑。
+- 提取带角色和置信度的 IOC，并区分恶意基础设施、共享托管和正常跳转目标。
+- 生成中文或英文技术报告、管理层简报、周报、Jira Markdown、IOC CSV/JSON 和证据 ZIP。
+
+### 使用方式
+
+```text
+使用 $investigate-phishing-links 安全分析这个疑似钓鱼链接。
+只做被动或经授权的受控分析，不提交凭证、不执行下载内容、不绕过访问控制，
+并生成技术报告、IOC 和证据包。
+```
+
+### 安全边界
+
+- 不提交用户名、密码、MFA、Cookie、OAuth 授权或支付信息。
+- 不执行、安装、导入、预览或打开二进制、脚本、文档、归档或浏览器扩展。
+- 不使用日常浏览器、企业 VPN、密码管理器或已认证会话接触目标。
+- 不绕过 CAPTCHA、WAF、反自动化、地理限制、认证或访问控制。
+- 不枚举路径、猜测 token、爆破、fuzz、利用漏洞或上传内容。
+- 无法验证一次性隔离环境时，退回被动研究和已有证据静态分析。
+
+### 结论等级
+
+- `Confirmed`：由捕获的原始数据或权威记录直接支持。
+- `High Confidence`：多个已确认指标共同支持的判断。
+- `Not Confirmed`：没有直接证据的凭证提交、会话劫持、恶意软件执行或账号影响。
+
+### 证据打包
+
+```bash
+python3 investigate-phishing-links/scripts/build_evidence_package.py \
+  /absolute/path/to/reviewed-case \
+  /absolute/path/to/case-package.zip
+```
+
+打包前必须先脱敏并审查案件目录。脚本拒绝 symlink 和非普通文件，拒绝覆盖已有
+ZIP，并在 ZIP 内写入 SHA-256 manifest。
+
+### 本地验证
+
+```bash
+python3 investigate-phishing-links/scripts/ci_check.py
+```
+
+测试使用合成案件文件，不访问真实 URL，也不执行案件内容。
+
+### 可移植性
+
+`SKILL.md` 的 `$investigate-phishing-links` 自动发现和调用是 Codex 机制；其他模型
+可以显式加载该文件、参考文档和 Python 打包脚本，但不会自动识别这个命令。
